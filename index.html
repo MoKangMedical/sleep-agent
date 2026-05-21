@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🌙 睡神 — 夜间健康守护者</title>
+<style>
+/* ========== DESIGN TOKENS (Spirited Away Night Palette) ========== */
+:root {
+  --bg-deep: #060f18;
+  --bg-mid: #0d1a28;
+  --bg-surface: #13212f;
+  --gold: #e8a820;
+  --gold-soft: #f5d890;
+  --bridge-red: #c0392b;
+  --haku-teal: #1e8568;
+  --spirit-blue: #4a90b8;
+  --foam-white: #e8dcc8;
+  --text-white: #f5efe0;
+  --text-soft: #b8ad9a;
+  --text-muted: #7a7062;
+  --serif: 'Noto Serif SC', 'STSong', 'Songti SC', 'SimSun', serif;
+  --sans: 'Inter', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+}
+
+/* ========== RESET ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+body {
+  font-family: var(--sans);
+  background: var(--bg-deep);
+  color: var(--text-soft);
+  min-height: 100dvh;
+  line-height: 1.7;
+}
+
+/* ========== WASHI PAPER TEXTURE ========== */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.06' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+}
+
+/* ========== WARM OVERLAY ========== */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(232,168,32,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 80%, rgba(74,144,184,0.03) 0%, transparent 40%);
+}
+
+/* ========== CONTAINER ========== */
+.app-container {
+  position: relative; z-index: 1;
+  max-width: 520px; margin: 0 auto; padding: 60px 24px 80px;
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+
+/* ========== MOON ========== */
+.moon-container {
+  position: fixed; top: 8%; right: 10%;
+  width: 80px; height: 80px; z-index: 0; pointer-events: none;
+}
+.moon {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle at 45% 35%, #fef9c3 0%, #f5d890 30%, #e8a820 70%, rgba(232,168,32,0.1) 100%);
+  box-shadow: 0 0 60px rgba(232,168,32,0.15), 0 0 120px rgba(232,168,32,0.06), 0 0 200px rgba(232,168,32,0.03);
+  animation: moon-glow 4s ease-in-out infinite;
+}
+@keyframes moon-glow {
+  0%, 100% { box-shadow: 0 0 60px rgba(232,168,32,0.15), 0 0 120px rgba(232,168,32,0.06); }
+  50% { box-shadow: 0 0 80px rgba(232,168,32,0.2), 0 0 150px rgba(232,168,32,0.08); }
+}
+
+/* ========== STARFIELD ========== */
+.starfield {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.star {
+  position: absolute; border-radius: 50%;
+  background: var(--foam-white);
+  animation: star-twinkle var(--duration) var(--delay) infinite ease-in-out;
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.7; }
+}
+
+/* ========== FIREFLIES ========== */
+.firefly-container {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.firefly {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #fef3c7, #e2b64f);
+  animation: firefly-float var(--duration) var(--delay) infinite ease-in-out;
+  --drift: 0px;
+}
+@keyframes firefly-float {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.8); }
+  15%  { opacity: 0.7; transform: translate(calc(var(--drift, 0px) * 0.6), -12px) scale(1.2); }
+  30%  { opacity: 0.3; transform: translate(calc(var(--drift, 0px) * 1.2), -6px) scale(0.9); }
+  45%  { opacity: 0.8; transform: translate(calc(var(--drift, 0px) * 0.3), -18px) scale(1.1); }
+  60%  { opacity: 0.2; transform: translate(calc(var(--drift, 0px) * -0.4), -3px) scale(0.85); }
+  75%  { opacity: 0.6; transform: translate(calc(var(--drift, 0px) * 0.7), -14px) scale(1.0); }
+  90%  { opacity: 0.1; transform: translate(calc(var(--drift, 0px) * -0.8), -8px) scale(0.9); }
+  100% { opacity: 0; transform: translate(0, 2px) scale(0.7); }
+}
+
+/* ========== GOD RAYS ========== */
+.godray {
+  position: fixed; pointer-events: none; z-index: 0;
+  width: 2px; background: linear-gradient(180deg, rgba(232,168,32,0.08), transparent);
+  filter: blur(6px);
+  animation: godray-sway var(--duration) infinite ease-in-out;
+}
+@keyframes godray-sway {
+  0%, 100% { transform: rotate(var(--angle)); opacity: 0.3; }
+  50% { transform: rotate(calc(var(--angle) + 4deg)); opacity: 0.6; }
+}
+
+/* ========== HEADER ========== */
+.header {
+  text-align: center; margin-bottom: 48px;
+  animation: card-rise 1s ease-out both;
+}
+.header-icon {
+  font-size: 48px; margin-bottom: 12px; display: block;
+  animation: float-slow 4s ease-in-out infinite;
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.header h1 {
+  font-family: var(--serif); font-size: 32px; font-weight: 700;
+  color: var(--text-white); letter-spacing: 0.04em;
+}
+.header p {
+  font-size: 14px; color: var(--text-muted); margin-top: 6px;
+}
+
+/* ========== CARD ========== */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px; padding: 28px 24px;
+  margin-bottom: 20px;
+  animation: card-rise 1.2s ease-out both;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,168,32,0.15), transparent);
+}
+.card-title {
+  font-family: var(--serif); font-size: 18px; font-weight: 700;
+  color: var(--text-white); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.card-title .icon { font-size: 22px; }
+
+/* ========== FORM ========== */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: 13px; font-weight: 600; color: var(--text-soft);
+  margin-bottom: 8px; letter-spacing: 0.03em;
+}
+.radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.radio-pill {
+  position: relative; cursor: pointer;
+}
+.radio-pill input { display: none; }
+.radio-pill span {
+  display: block; padding: 8px 18px;
+  background: var(--bg-mid); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; font-size: 13px; color: var(--text-soft);
+  transition: all 0.25s ease; cursor: pointer;
+}
+.radio-pill input:checked + span {
+  background: rgba(232,168,32,0.1); border-color: rgba(232,168,32,0.3);
+  color: var(--gold);
+}
+
+/* ========== SLIDER ========== */
+.slider-container { position: relative; }
+.slider-container input[type="range"] {
+  -webkit-appearance: none; width: 100%; height: 4px;
+  background: rgba(255,255,255,0.08); border-radius: 2px; outline: none;
+}
+.slider-container input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px;
+  border-radius: 50%; background: var(--gold);
+  box-shadow: 0 0 12px rgba(232,168,32,0.3); cursor: pointer;
+  transition: transform 0.2s;
+}
+.slider-container input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.slider-labels {
+  display: flex; justify-content: space-between; font-size: 11px;
+  color: var(--text-muted); margin-top: 6px;
+}
+.slider-value {
+  position: absolute; top: -28px; font-size: 12px; font-weight: 600;
+  color: var(--gold); transform: translateX(-50%);
+}
+
+/* ========== TIME INPUT ========== */
+.time-input {
+  width: 100%; padding: 10px 16px;
+  background: var(--bg-mid); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; color: var(--text-white); font-size: 15px;
+  font-family: var(--sans); outline: none; transition: all 0.25s;
+}
+.time-input:focus { border-color: rgba(232,168,32,0.3); }
+.time-input::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
+
+/* ========== TEXTAREA ========== */
+.textarea-input {
+  width: 100%; padding: 12px 16px; min-height: 80px; resize: vertical;
+  background: var(--bg-mid); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; color: var(--text-white); font-size: 14px;
+  font-family: var(--sans); outline: none; transition: all 0.25s; line-height: 1.6;
+}
+.textarea-input:focus { border-color: rgba(232,168,32,0.3); }
+.textarea-input::placeholder { color: var(--text-muted); }
+
+/* ========== BUTTON ========== */
+.btn-primary {
+  width: 100%; padding: 14px 28px;
+  background: linear-gradient(135deg, var(--gold), #c48818);
+  border: none; border-radius: 12px; color: var(--bg-deep);
+  font-size: 16px; font-weight: 700; font-family: var(--sans);
+  cursor: pointer; transition: all 0.3s ease;
+  letter-spacing: 0.04em;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(232,168,32,0.2);
+}
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled {
+  opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none;
+}
+
+/* ========== REPORT DISPLAY ========== */
+.report-section { display: none; }
+.report-section.visible { display: block; animation: card-rise 0.8s ease-out both; }
+.report-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(232,168,32,0.08);
+  border-radius: 16px; padding: 32px 24px;
+  position: relative; overflow: hidden;
+}
+.report-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.report-meta {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.report-meta .date { font-size: 13px; color: var(--text-muted); }
+.report-meta .badge {
+  padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  background: rgba(232,168,32,0.1); color: var(--gold); border: 1px solid rgba(232,168,32,0.15);
+}
+.report-content { line-height: 1.9; }
+.report-content h3 {
+  font-family: var(--serif); font-size: 17px; color: var(--gold); margin: 24px 0 12px;
+}
+.report-content h3:first-child { margin-top: 0; }
+.report-content p { font-size: 14px; color: var(--text-soft); margin-bottom: 10px; }
+.report-content ul { padding-left: 20px; margin-bottom: 12px; }
+.report-content li { font-size: 14px; color: var(--text-soft); margin-bottom: 6px; }
+.report-content strong { color: var(--text-white); }
+.report-content em { color: var(--gold-soft); font-style: normal; }
+
+/* ========== TOAST ========== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-surface); border: 1px solid rgba(232,168,32,0.2);
+  border-radius: 12px; padding: 12px 24px; color: var(--text-white);
+  font-size: 14px; z-index: 1000; opacity: 0; transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5); pointer-events: none;
+}
+.toast.visible { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+
+/* ========== STATUS INDICATOR ========== */
+.status-bar {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 8px 16px; margin: 12px 0; border-radius: 10px;
+  font-size: 12px; color: var(--text-muted);
+  background: var(--bg-mid); border: 1px solid rgba(255,255,255,0.04);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted);
+}
+.status-dot.active { background: #22c55e; animation: pulse 2s infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  margin-top: auto; text-align: center; padding-top: 40px;
+  font-size: 11px; color: var(--text-muted); opacity: 0.6;
+}
+
+/* ========== WIND LINES ========== */
+.wind-line {
+  position: fixed; pointer-events: none; z-index: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent);
+  animation: wind-drift var(--duration) infinite linear;
+}
+@keyframes wind-drift {
+  0%   { transform: translateX(0); opacity: 0; }
+  20%  { opacity: 0.5; }
+  50%  { opacity: 0.2; }
+  80%  { opacity: 0.5; }
+  100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+}
+
+/* ========== TABS ========== */
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+.tab {
+  flex: 1; padding: 10px 0; text-align: center; font-size: 14px;
+  font-weight: 600; color: var(--text-muted); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.3s;
+}
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab:hover { color: var(--text-soft); }
+
+/* ========== MEDIA QUERIES ========== */
+@media (max-width: 480px) {
+  .app-container { padding: 40px 16px 80px; }
+  .header h1 { font-size: 26px; }
+  .card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MOON -->
+<div class="moon-container"><div class="moon"></div></div>
+
+<!-- STARFIELD -->
+<div class="starfield" id="starfield"></div>
+
+<!-- GOD RAYS -->
+<div class="godray" style="top: 0; left: 25%; height: 60vh; --angle: -12deg; --duration: 16s;"></div>
+<div class="godray" style="top: 0; left: 55%; height: 50vh; --angle: -10deg; --duration: 18s;"></div>
+
+<!-- FIREFLIES -->
+<div class="firefly-container" id="fireflies"></div>
+
+<!-- WIND LINES -->
+<div class="wind-line" style="top: 30%; width: 300px; --duration: 14s; animation-delay: 0s;"></div>
+<div class="wind-line" style="top: 55%; width: 200px; --duration: 16s; animation-delay: 5s;"></div>
+<div class="wind-line" style="top: 72%; width: 250px; --duration: 13s; animation-delay: 9s;"></div>
+
+<!-- APP -->
+<div class="app-container">
+  <div class="header">
+    <span class="header-icon">🌙</span>
+    <h1>睡神 Hypnos</h1>
+    <p>夜间健康守护者 · 在你安睡时默默工作</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="sleep">🌛 睡前记录</div>
+    <div class="tab" data-tab="report">☀️ 晨间简报</div>
+  </div>
+
+  <!-- SLEEP LOG FORM -->
+  <div id="tab-sleep">
+    <div class="card" style="animation-delay: 0.2s;">
+      <div class="card-title"><span class="icon">☕</span>今日咖啡因摄入</div>
+      <div class="radio-group" id="caffeine">
+        <label class="radio-pill"><input type="radio" name="caffeine" value="none"><span>无</span></label>
+        <label class="radio-pill"><input type="radio" name="caffeine" value="morning"><span>上午1杯</span></label>
+        <label class="radio-pill"><input type="radio" name="caffeine" value="afternoon"><span>下午1杯</span></label>
+        <label class="radio-pill"><input type="radio" name="caffeine" value="heavy"><span>2杯以上</span></label>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay: 0.35s;">
+      <div class="card-title"><span class="icon">🏃</span>今日运动情况</div>
+      <div class="radio-group" id="exercise">
+        <label class="radio-pill"><input type="radio" name="exercise" value="none"><span>无</span></label>
+        <label class="radio-pill"><input type="radio" name="exercise" value="light"><span>轻度 · &lt;30分钟</span></label>
+        <label class="radio-pill"><input type="radio" name="exercise" value="moderate"><span>中度 · 30-60分钟</span></label>
+        <label class="radio-pill"><input type="radio" name="exercise" value="intense"><span>高强度 · &gt;60分钟</span></label>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay: 0.5s;">
+      <div class="card-title"><span class="icon">🧠</span>今日压力水平</div>
+      <div class="slider-container">
+        <input type="range" id="stress" min="0" max="10" value="5" step="1">
+        <div class="slider-labels">
+          <span>😌 轻松</span><span>😐 一般</span><span>😰 很大</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="animation-delay: 0.65s;">
+      <div class="card-title"><span class="icon">🕐</span>预计就寝时间</div>
+      <input type="time" class="time-input" id="bedtime" value="23:00">
+    </div>
+
+    <div class="card" style="animation-delay: 0.8s;">
+      <div class="card-title"><span class="icon">💭</span>今日心情 / 备注</div>
+      <textarea class="textarea-input" id="notes" placeholder="例如：今天和同事吵架了、项目deadline、看了好看的电影..."></textarea>
+    </div>
+
+    <button class="btn-primary" id="btn-save" onclick="saveSleepLog()">
+      🌙 交给睡神，安心入眠
+    </button>
+
+    <div class="status-bar" style="margin-top: 16px;">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Agent 就绪，等待你的睡前记录</span>
+    </div>
+  </div>
+
+  <!-- MORNING REPORT -->
+  <div id="tab-report" style="display: none;">
+    <div class="report-section" id="report-section">
+      <div class="report-card" id="report-card">
+        <div class="report-meta">
+          <span>📅</span>
+          <span class="date" id="report-date">—</span>
+          <span class="badge" id="report-badge">待生成</span>
+        </div>
+        <div class="report-content" id="report-content">
+          <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">
+            还没有今天的晨间简报。<br>
+            <span style="font-size: 13px;">睡神会在你入睡后分析数据，早晨为你准备个性化报告 🌅</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>睡神 Hypnos · 夜间自主 AI Agent · Powered by DeepSeek</p>
+    <p style="margin-top: 4px;">在你安睡时，Agent 正在为你工作 ✨</p>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== INIT ==========
+const DATA_DIR = '/root/.hermes/projects/sleep-agent/data';
+let currentTab = 'sleep';
+
+// ========== STARFIELD ==========
+(function createStars() {
+  const container = document.getElementById('starfield');
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.width = star.style.height = (0.5 + Math.random() * 1.5) + 'px';
+    star.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+    star.style.setProperty('--delay', Math.random() * 5 + 's');
+    container.appendChild(star);
+  }
+})();
+
+// ========== FIREFLIES ==========
+(function createFireflies() {
+  const container = document.getElementById('fireflies');
+  for (let i = 0; i < 20; i++) {
+    const ff = document.createElement('div');
+    ff.className = 'firefly';
+    ff.style.left = (5 + Math.random() * 90) + '%';
+    ff.style.top = (10 + Math.random() * 80) + '%';
+    ff.style.width = ff.style.height = (2 + Math.random() * 3) + 'px';
+    ff.style.setProperty('--duration', (5 + Math.random() * 8) + 's');
+    ff.style.setProperty('--delay', Math.random() * 8 + 's');
+    ff.style.setProperty('--drift', ((Math.random() - 0.5) * 30) + 'px');
+    ff.style.boxShadow = `0 0 ${4+Math.random()*6}px rgba(232,168,32,${0.15+Math.random()*0.3})`;
+    container.appendChild(ff);
+  }
+})();
+
+// ========== TABS ==========
+document.getElementById('tabs').addEventListener('click', (e) => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  currentTab = tab.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('tab-sleep').style.display = currentTab === 'sleep' ? 'block' : 'none';
+  document.getElementById('tab-report').style.display = currentTab === 'report' ? 'block' : 'none';
+  if (currentTab === 'report') loadReport();
+});
+
+// ========== TOAST ==========
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.remove('visible'), duration);
+}
+
+// ========== SAVE SLEEP LOG ==========
+async function saveSleepLog() {
+  const btn = document.getElementById('btn-save');
+  const caffeine = document.querySelector('input[name="caffeine"]:checked');
+  const exercise = document.querySelector('input[name="exercise"]:checked');
+
+  if (!caffeine || !exercise) {
+    showToast('请完成所有选项后再提交 🌙');
+    return;
+  }
+
+  const data = {
+    timestamp: new Date().toISOString(),
+    date: new Date().toISOString().split('T')[0],
+    caffeine: caffeine.value,
+    exercise: exercise.value,
+    stress: parseInt(document.getElementById('stress').value),
+    bedtime: document.getElementById('bedtime').value,
+    notes: document.getElementById('notes').value.trim()
+  };
+
+  btn.disabled = true;
+  btn.textContent = '⏳ 正在保存...';
+
+  try {
+    // Save via fetch to a simple endpoint, or use local storage as fallback
+    const res = await fetch('/api/sleep-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      showToast('🌙 已记录！睡神将在夜间为你分析睡眠数据');
+      updateStatus('active', '已记录今晚数据 · Agent 将在凌晨 3:00 开始工作');
+    } else {
+      throw new Error('Save failed');
+    }
+  } catch (e) {
+    // Fallback: save to localStorage
+    localStorage.setItem('sleep-log', JSON.stringify(data));
+    showToast('🌙 已本地保存（离线模式）· 明天将同步');
+    updateStatus('active', '数据已本地保存 · 等待同步');
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = '🌙 交给睡神，安心入眠';
+  }, 2000);
+}
+
+// ========== LOAD REPORT ==========
+async function loadReport() {
+  const section = document.getElementById('report-section');
+  const content = document.getElementById('report-content');
+  const dateEl = document.getElementById('report-date');
+  const badgeEl = document.getElementById('report-badge');
+
+  try {
+    const res = await fetch('/api/morning-report');
+    if (res.ok) {
+      const report = await res.json();
+      section.classList.add('visible');
+      dateEl.textContent = report.date || '今天';
+      badgeEl.textContent = '✨ 已生成';
+      badgeEl.style.background = 'rgba(30,133,104,0.15)';
+      badgeEl.style.color = '#1e8568';
+      badgeEl.style.borderColor = 'rgba(30,133,104,0.2)';
+      content.innerHTML = formatReport(report);
+    }
+  } catch (e) {
+    // Fallback: load from localStorage
+    const cached = localStorage.getItem('morning-report');
+    if (cached) {
+      const report = JSON.parse(cached);
+      section.classList.add('visible');
+      dateEl.textContent = report.date || '最近';
+      badgeEl.textContent = '📋 缓存';
+      content.innerHTML = formatReport(report);
+    }
+  }
+}
+
+function formatReport(report) {
+  if (!report || !report.content) {
+    return '<p style="color: var(--text-muted); text-align: center; padding: 40px 0;">还没有今天的晨间简报。<br><span style="font-size: 13px;">睡神会在你入睡后分析数据，早晨为你准备个性化报告 🌅</span></p>';
+  }
+  // Convert markdown-like content to HTML
+  let html = report.content
+    .replace(/### (.+)/g, '<h3>$1</h3>')
+    .replace(/## (.+)/g, '<h2 style="font-family:var(--serif);color:var(--text-white);font-size:19px;margin:20px 0 12px;">$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/- (.+)/g, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, (m) => `<ul>${m}</ul>`)
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+
+  html = '<p>' + html + '</p>';
+  // Clean up empty paragraphs
+  html = html.replace(/<p>\s*<\/p>/g, '');
+  html = html.replace(/<p><ul>/g, '<ul>');
+  html = html.replace(/<\/ul><\/p>/g, '</ul>');
+
+  return html;
+}
+
+function updateStatus(state, text) {
+  const dot = document.getElementById('status-dot');
+  const textEl = document.getElementById('status-text');
+  dot.classList.toggle('active', state === 'active');
+  textEl.textContent = text;
+}
+
+// ========== CHECK FOR EXISTING REPORT ON LOAD ==========
+if (currentTab === 'report') loadReport();
+
+// ========== AUTO-SAVE ON UNLOAD ==========
+window.addEventListener('beforeunload', () => {
+  const caffeine = document.querySelector('input[name="caffeine"]:checked');
+  const exercise = document.querySelector('input[name="exercise"]:checked');
+  if (caffeine || exercise) {
+    const data = {
+      timestamp: new Date().toISOString(),
+      caffeine: caffeine?.value || '',
+      exercise: exercise?.value || '',
+      stress: parseInt(document.getElementById('stress').value),
+      bedtime: document.getElementById('bedtime').value,
+      notes: document.getElementById('notes').value.trim()
+    };
+    localStorage.setItem('sleep-log-draft', JSON.stringify(data));
+  }
+});
+
+// ========== RESTORE DRAFT ==========
+const draft = localStorage.getItem('sleep-log-draft');
+if (draft) {
+  try {
+    const d = JSON.parse(draft);
+    if (d.caffeine) document.querySelector(`input[name="caffeine"][value="${d.caffeine}"]`).checked = true;
+    if (d.exercise) document.querySelector(`input[name="exercise"][value="${d.exercise}"]`).checked = true;
+    if (d.stress) document.getElementById('stress').value = d.stress;
+    if (d.bedtime) document.getElementById('bedtime').value = d.bedtime;
+    if (d.notes) document.getElementById('notes').value = d.notes;
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
